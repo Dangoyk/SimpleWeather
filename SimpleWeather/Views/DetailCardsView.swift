@@ -6,6 +6,9 @@ struct DetailCardsView: View {
     let uvIndex: Double
     let windSpeed: Double
     let visibility: Double
+    let pressure: Double
+    let sunriseTime: String
+    let sunsetTime: String
 
     var uvLabel: String {
         switch Int(uvIndex) {
@@ -17,6 +20,12 @@ struct DetailCardsView: View {
         }
     }
 
+    var pressureLabel: String {
+        if pressure < 1009 { return "Low pressure." }
+        if pressure > 1013 { return "High pressure." }
+        return "Normal pressure."
+    }
+
     var body: some View {
         LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
             DetailCard(icon: "thermometer.medium", label: "FEELS LIKE", value: "\(Int(feelsLike.rounded()))°", detail: feelsLike > 90 ? "Hot out there." : feelsLike < 32 ? "Feels freezing." : "Similar to actual.")
@@ -24,6 +33,8 @@ struct DetailCardsView: View {
             DetailCard(icon: "sun.max.fill", label: "UV INDEX", value: "\(Int(uvIndex))", detail: uvLabel)
             DetailCard(icon: "wind", label: "WIND", value: "\(Int(windSpeed)) mph", detail: windSpeed > 25 ? "Very windy." : windSpeed > 10 ? "Breezy." : "Light wind.")
             DetailCard(icon: "eye.fill", label: "VISIBILITY", value: String(format: "%.1f mi", visibility), detail: visibility > 5 ? "Clear visibility." : "Reduced visibility.")
+            DetailCard(icon: "gauge.medium", label: "PRESSURE", value: "\(Int(pressure.rounded()))", detail: pressureLabel)
+            DetailCard(icon: "sunrise.fill", label: "SUNRISE", value: sunriseTime, detail: "Sunset: \(sunsetTime)")
         }
     }
 }

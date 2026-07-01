@@ -6,6 +6,7 @@ class LocationManager: NSObject, ObservableObject {
     @Published var location: CLLocation?
     @Published var cityName: String = "Loading..."
     @Published var authorizationStatus: CLAuthorizationStatus = .notDetermined
+    @Published var permissionDenied: Bool = false
 
     private let manager = CLLocationManager()
     private let geocoder = CLGeocoder()
@@ -19,11 +20,13 @@ class LocationManager: NSObject, ObservableObject {
     func requestLocation() {
         switch manager.authorizationStatus {
         case .notDetermined:
+            permissionDenied = false
             manager.requestWhenInUseAuthorization()
         case .authorizedWhenInUse, .authorizedAlways:
+            permissionDenied = false
             manager.requestLocation()
         default:
-            break
+            permissionDenied = true
         }
     }
 
@@ -51,9 +54,14 @@ extension LocationManager: CLLocationManagerDelegate {
     nonisolated func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
         Task { @MainActor in
             self.authorizationStatus = manager.authorizationStatus
-            if manager.authorizationStatus == .authorizedWhenInUse ||
-               manager.authorizationStatus == .authorizedAlways {
+            switch manager.authorizationStatus {
+            case .authorizedWhenInUse, .authorizedAlways:
+                self.permissionDenied = false
                 manager.requestLocation()
+            case .notDetermined:
+                self.permissionDenied = false
+            default:
+                self.permissionDenied = true
             }
         }
     }

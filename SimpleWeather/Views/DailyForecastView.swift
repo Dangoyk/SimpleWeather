@@ -52,10 +52,17 @@ struct DailyRow: View {
                 .foregroundColor(.white)
                 .frame(width: 48, alignment: .leading)
 
-            Image(systemName: weatherSymbol(for: item.weathercode))
-                .font(.system(size: 22))
-                .symbolRenderingMode(.multicolor)
-                .frame(width: 28)
+            VStack(spacing: 2) {
+                Image(systemName: weatherSymbol(for: item.weathercode))
+                    .font(.system(size: 22))
+                    .symbolRenderingMode(.multicolor)
+                if item.precipitationProbability > 0 {
+                    Text("\(item.precipitationProbability)%")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(Color(red: 0.3, green: 0.7, blue: 1))
+                }
+            }
+            .frame(width: 36)
 
             Text("\(Int(item.tempMin.rounded()))°")
                 .font(.system(size: 17))

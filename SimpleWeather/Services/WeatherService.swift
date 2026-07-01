@@ -12,9 +12,9 @@ struct WeatherService {
         let lon = location.coordinate.longitude
         let urlString = "https://api.open-meteo.com/v1/forecast" +
             "?latitude=\(lat)&longitude=\(lon)" +
-            "&current=temperature_2m,apparent_temperature,weathercode,windspeed_10m,relativehumidity_2m,uv_index,visibility" +
+            "&current=temperature_2m,apparent_temperature,weathercode,windspeed_10m,relativehumidity_2m,uv_index,visibility,surface_pressure" +
             "&hourly=temperature_2m,weathercode" +
-            "&daily=temperature_2m_max,temperature_2m_min,weathercode,precipitation_sum" +
+            "&daily=temperature_2m_max,temperature_2m_min,weathercode,precipitation_sum,precipitation_probability_max,sunrise,sunset" +
             "&temperature_unit=fahrenheit&windspeed_unit=mph&timezone=auto" +
             "&forecast_days=10"
         guard let url = URL(string: urlString) else { throw URLError(.badURL) }

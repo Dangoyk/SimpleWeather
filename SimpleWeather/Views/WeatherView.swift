@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct WeatherView: View {
     @StateObject private var vm = WeatherViewModel()
@@ -40,12 +41,34 @@ struct WeatherView: View {
 
     @ViewBuilder
     private var content: some View {
-        if vm.isLoading && vm.currentTemp == 0 {
+        if locationManager.permissionDenied {
+            permissionDeniedView
+        } else if vm.isLoading && vm.currentTemp == 0 {
             loadingView
         } else if let error = vm.errorMessage, vm.currentTemp == 0 {
             errorView(message: error)
         } else {
             mainScrollView
+        }
+    }
+
+    private var permissionDeniedView: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "location.slash")
+                .font(.system(size: 40))
+                .foregroundColor(.white.opacity(0.7))
+            Text("Location access is off. Enable it in Settings to see your weather.")
+                .font(.system(size: 17))
+                .foregroundColor(.white.opacity(0.8))
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+            Button("Open Settings") {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(url)
+                }
+            }
+            .buttonStyle(.bordered)
+            .tint(.white)
         }
     }
 
@@ -104,8 +127,7 @@ struct WeatherView: View {
                     YesterdayComparisonCard(
                         yesterday: yesterday,
                         todayHigh: vm.todayHigh,
-                        todayLow: vm.todayLow,
-                        currentTemp: vm.currentTemp
+                        todayLow: vm.todayLow
                     )
                 }
 
@@ -118,7 +140,10 @@ struct WeatherView: View {
                     humidity: vm.humidity,
                     uvIndex: vm.uvIndex,
                     windSpeed: vm.windSpeed,
-                    visibility: vm.visibility
+                    visibility: vm.visibility,
+                    pressure: vm.pressure,
+                    sunriseTime: vm.sunriseTime,
+                    sunsetTime: vm.sunsetTime
                 )
 
                 Spacer(minLength: 40)

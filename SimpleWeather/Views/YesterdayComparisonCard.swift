@@ -4,9 +4,8 @@ struct YesterdayComparisonCard: View {
     let yesterday: YesterdayData
     let todayHigh: Double
     let todayLow: Double
-    let currentTemp: Double
 
-    var delta: Double { currentTemp - yesterday.high }
+    var delta: Double { todayHigh - yesterday.high }
     var isWarmer: Bool { delta > 0 }
 
     var summaryText: String {

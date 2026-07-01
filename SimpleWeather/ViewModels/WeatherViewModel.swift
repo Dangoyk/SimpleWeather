@@ -15,6 +15,9 @@ class WeatherViewModel: ObservableObject {
     @Published var humidity: Int = 0
     @Published var uvIndex: Double = 0
     @Published var visibility: Double = 0
+    @Published var pressure: Double = 0
+    @Published var sunriseTime: String = ""
+    @Published var sunsetTime: String = ""
 
     @Published var hourlyForecast: [HourlyForecastItem] = []
     @Published var dailyForecast: [DailyForecastItem] = []
@@ -28,7 +31,7 @@ class WeatherViewModel: ObservableObject {
 
     var comparisonDelta: Double? {
         guard let y = yesterday else { return nil }
-        return currentTemp - y.high
+        return todayHigh - y.high
     }
 
     var comparisonText: String? {
@@ -75,9 +78,17 @@ class WeatherViewModel: ObservableObject {
         humidity = current.relativehumidity2m
         uvIndex = current.uvIndex
         visibility = current.visibility / 5280 // convert feet to miles
+        pressure = current.surfacePressure
 
         todayHigh = forecast.daily.temperature2mMax.first ?? 0
         todayLow = forecast.daily.temperature2mMin.first ?? 0
+
+        if let sunriseStr = forecast.daily.sunrise.first {
+            sunriseTime = Self.formatClockTime(sunriseStr)
+        }
+        if let sunsetStr = forecast.daily.sunset.first {
+            sunsetTime = Self.formatClockTime(sunsetStr)
+        }
 
         if let yHigh = archive.daily.temperature2mMax.first,
            let yLow = archive.daily.temperature2mMin.first,
@@ -89,12 +100,26 @@ class WeatherViewModel: ObservableObject {
         buildDaily(forecast: forecast)
     }
 
+    private static func formatClockTime(_ isoString: String) -> String {
+        let parser = DateFormatter()
+        parser.locale = Locale(identifier: "en_US_POSIX")
+        parser.dateFormat = "yyyy-MM-dd'T'HH:mm"
+        guard let date = parser.date(from: isoString) else { return "" }
+
+        let display = DateFormatter()
+        display.locale = Locale(identifier: "en_US_POSIX")
+        display.dateFormat = "h:mm a"
+        return display.string(from: date)
+    }
+
     private func buildHourly(forecast: ForecastResponse) {
         let now = Date()
         let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.dateFormat = "yyyy-MM-dd'T'HH:mm"
 
         let timeFormatter = DateFormatter()
+        timeFormatter.locale = Locale(identifier: "en_US_POSIX")
         timeFormatter.dateFormat = "ha"
 
         var items: [HourlyForecastItem] = []
@@ -123,9 +148,11 @@ class WeatherViewModel: ObservableObject {
 
     private func buildDaily(forecast: ForecastResponse) {
         let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.dateFormat = "yyyy-MM-dd"
 
         let dayFormatter = DateFormatter()
+        dayFormatter.locale = Locale(identifier: "en_US_POSIX")
         dayFormatter.dateFormat = "EEE"
 
         let today = formatter.string(from: Date())
@@ -149,7 +176,9 @@ class WeatherViewModel: ObservableObject {
                 weathercode: forecast.daily.weathercode[i],
                 tempMin: forecast.daily.temperature2mMin[i],
                 tempMax: forecast.daily.temperature2mMax[i],
-                precipitationSum: forecast.daily.precipitationSum[i]
+                precipitationSum: forecast.daily.precipitationSum[i],
+                precipitationProbability: i < forecast.daily.precipitationProbabilityMax.count
+                    ? forecast.daily.precipitationProbabilityMax[i] : 0
             )
         }
     }

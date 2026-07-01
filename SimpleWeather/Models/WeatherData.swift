@@ -16,6 +16,7 @@ struct CurrentWeather: Codable {
     let relativehumidity2m: Int
     let uvIndex: Double
     let visibility: Double
+    let surfacePressure: Double
 
     enum CodingKeys: String, CodingKey {
         case temperature2m = "temperature_2m"
@@ -25,6 +26,7 @@ struct CurrentWeather: Codable {
         case relativehumidity2m = "relativehumidity_2m"
         case uvIndex = "uv_index"
         case visibility
+        case surfacePressure = "surface_pressure"
     }
 }
 
@@ -46,6 +48,9 @@ struct DailyWeather: Codable {
     let temperature2mMin: [Double]
     let weathercode: [Int]
     let precipitationSum: [Double]
+    let precipitationProbabilityMax: [Int]
+    let sunrise: [String]
+    let sunset: [String]
 
     enum CodingKeys: String, CodingKey {
         case time
@@ -53,6 +58,9 @@ struct DailyWeather: Codable {
         case temperature2mMin = "temperature_2m_min"
         case weathercode
         case precipitationSum = "precipitation_sum"
+        case precipitationProbabilityMax = "precipitation_probability_max"
+        case sunrise
+        case sunset
     }
 }
 
@@ -92,6 +100,7 @@ struct DailyForecastItem: Identifiable {
     let tempMin: Double
     let tempMax: Double
     let precipitationSum: Double
+    let precipitationProbability: Int
 }
 
 struct YesterdayData {
